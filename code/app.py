@@ -57,8 +57,11 @@ def main():
                 session.rollback()
                 existing_assignment = session.query(Assignment).filter_by(data_id=assignment.data_id).first()
                 if existing_assignment:
-                    if compare_and_log_changes(existing_assignment, assignment, session):
+                    changes_made = compare_and_log_changes(existing_assignment, assignment, session)
+                    if changes_made:
+                        print(f'making a change for {assignment.data_id}')
                         session.commit()
+                        sync_assignment_with_airtable(api, base_id, table_id, assignment)
                 else:
                     print(f"Error: Existing assignment not found for data_id={assignment.data_id}")
                     for attr, value in assignment.__dict__.items():
@@ -70,6 +73,7 @@ def sync_assignment_with_airtable(api, base_id, table_id, assignment):
     table = api.table(base_id, table_id)
     formula = match({"Data ID": assignment.data_id})
     existing_record = table.first(formula=formula)
+
     assignment_data = {
                 "Data ID": assignment.data_id,
                 "Course": assignment.course,

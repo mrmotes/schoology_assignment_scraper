@@ -136,25 +136,37 @@ def get_grade_details(grade_column):
     return grade_details
 
 
+def clean_assignment_comment(comment):
+    cleaned_comment = re.sub(r'^Comment:\s*', '', comment, flags=re.IGNORECASE)
+    if cleaned_comment == 'No comment':
+        cleaned_comment = ''
+    return cleaned_comment
+
+
+def clean_assignment_title(title):
+    return re.sub(r'^Note:\s*', '', title, flags=re.IGNORECASE)
+
+
 def get_assignment_from_table_row(tr):
-    title = tr.find('span', class_='title').text
+    title = clean_assignment_title(tr.find('span', class_='title').text)
     due_date = tr.find('span', class_='due-date')
-    comment = tr.find('td', class_='comment-column').text
+    comment = clean_assignment_comment(tr.find('td', class_='comment-column').text)
     
     if due_date:
         due_date = get_due_date_string_as_date(due_date.text)
     
     grade_colum_td = tr.find('td', class_='grade-column')
     grade_details = get_grade_details(grade_colum_td)
+
     
     return {
         'data_id': tr.get('data-id'),
         'title': title,
         'due_date': due_date,
         'comment': comment,
-        'awarded_grade': grade_details.get('awarded-grade'),
-        'max_grade': grade_details.get('max-grade'),
-        'status': grade_details.get('status'),
+        'awarded_grade': grade_details['awarded-grade'],
+        'max_grade': grade_details['max-grade'],
+        'status': grade_details['status'],
         'date_extracted': datetime.now(timezone.utc)
     }
 

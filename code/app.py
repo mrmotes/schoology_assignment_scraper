@@ -6,33 +6,6 @@ from models import Assignment
 from database import Session
 from sqlalchemy.exc import IntegrityError
 
-courses = [
-    {
-        'id': '6803387625',
-        'name': 'English Language Arts',
-        'code': 'ENG1037',
-        'html_id': 's-js-gradebook-course-6803387625'
-    },
-    {
-        'id': '6803388145',
-        'name': 'Mathematics',
-        'code': 'MTH4007',
-        'html_id': 's-js-gradebook-course-6803388145'
-    },
-    {
-        'id': '6803389091',
-        'name': 'Science',
-        'code': 'SCI6007',
-        'html_id': 's-js-gradebook-course-6803389091'
-    },
-    {
-        'id': '6803749517',
-        'name': 'Social Studies',
-        'code': 'SOC5007',
-        'html_id': 's-js-gradebook-course-6803749517'
-    }
-]
-
 
 def main():
     session = login_to_schoology()
@@ -42,7 +15,14 @@ def main():
     
     api = Api(os.getenv('AIRTABLE_PERSONAL_ACCESS_TOKEN'))
     base_id = os.getenv('AIRTABLE_BASE_ID')
-    table_id = os.getenv('AIRTBALE_TABLE_ID')
+    assignment_table_id = os.getenv('AIRTBALE_ASSIGNMENT_TABLE_ID')
+    course_table_id = os.getenv('AIRTABLE_COURSE_TABLE_ID')
+
+    courses = get_active_courses_from_airtable(api, base_id, course_table_id)
+    
+    if len(courses) == 0:
+        print('Schools out for summer!')
+        return
     
     assignments = get_assignments(session, courses)
 
@@ -51,7 +31,7 @@ def main():
             try:
                 session.add(assignment)
                 session.commit()
-                sync_assignment_with_airtable(api, base_id, table_id, assignment)
+                sync_assignment_with_airtable(api, base_id, assignment_table_id, assignment)
 
             except IntegrityError:
                 session.rollback()
@@ -61,7 +41,7 @@ def main():
                     if changes_made:
                         print(f'making a change for {assignment.data_id}')
                         session.commit()
-                        sync_assignment_with_airtable(api, base_id, table_id, assignment)
+                        sync_assignment_with_airtable(api, base_id, assignment_table_id, assignment)
                 else:
                     print(f"Error: Existing assignment not found for data_id={assignment.data_id}")
                     for attr, value in assignment.__dict__.items():
@@ -90,6 +70,17 @@ def sync_assignment_with_airtable(api, base_id, table_id, assignment):
         table.update(existing_record['id'], assignment_data)
     else:
         table.create(assignment_data)
+
+def get_active_courses_from_airtable(api, base_id, table_id):
+    table = api.table(base_id, table_id)
+    formula = match({"Active": 1})
+    active_courses = []
+    for active_records in table.iterate(page_size=100, max_records=1000, formula=formula, fields=["Name", "HTML ID"]):
+        active_courses = [record['fields'] for record in active_records]
+    
+    return active_courses
+
+
 
 
 if __name__ == "__main__":

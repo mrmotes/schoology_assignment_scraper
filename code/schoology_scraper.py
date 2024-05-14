@@ -19,9 +19,10 @@ def get_assignments(session, courses):
     assignments = []
 
     for course in courses:
-        course_gradebook_div = soup.find('div', id=course['HTML ID'])
+        course_html_id = course['fields']['HTML ID']
+        course_gradebook_div = soup.find('div', id=course_html_id)
         if not course_gradebook_div:
-            print(f'NotFound: {course['HTML ID']}')
+            print(f'NotFound: {course_html_id}')
 
         gradebook_course_grades_div = course_gradebook_div.find('div', class_='gradebook-course-grades')
         table_rows = gradebook_course_grades_div.find_all('tr')
@@ -35,7 +36,7 @@ def get_assignments(session, courses):
                 assignment_details = get_assignment_from_table_row(tr)
                 assignment = Assignment(
                     data_id = tr.get('data-id') ,
-                    course = course['Name'], 
+                    course = course['id'], 
                     category = current_category, 
                     quarter = current_quarter, 
                     title = assignment_details.get('title'), 

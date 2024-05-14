@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Boolean, Column, Date, DateTime, Integer, String 
+from sqlalchemy import create_engine, Column, Date, DateTime, Integer, String 
 from sqlalchemy.orm import declarative_base
 
 engine = create_engine('sqlite:///schoology.db')
@@ -20,18 +20,6 @@ class Assignment(Base):
     status = Column(String)
     date_extracted = Column(DateTime, nullable=False)
     date_last_updated = Column(DateTime, nullable=True)
-
-
-class Course(Base):
-    __tablename__ = 'course'
-
-    id = Column(Integer, primary_key=True)
-    data_id = Column(String, nullable=False, unique=True)
-    html_id = Column(String, nullable=False)
-    name = Column(String, nullable=False)
-    code = Column(String, nullable=False)
-    is_active = Column(Boolean, nullable=False)
-
 
 class ChangeLog(Base):
     __tablename__ = 'change_log'

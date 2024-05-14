@@ -28,25 +28,16 @@ def main():
 
     with Session() as session:
         for assignment in assignments:
-            try:
+            existing_assignment = session.query(Assignment).filter_by(data_id=assignment.data_id).first()
+            if existing_assignment:
+                changes_made = compare_and_log_changes(existing_assignment, assignment, session)
+                if changes_made:
+                    session.commit()
+                    sync_assignment_with_airtable(api, base_id, assignment_table_id, existing_assignment)
+            else:
                 session.add(assignment)
                 session.commit()
                 sync_assignment_with_airtable(api, base_id, assignment_table_id, assignment)
-
-            except IntegrityError:
-                session.rollback()
-                existing_assignment = session.query(Assignment).filter_by(data_id=assignment.data_id).first()
-                if existing_assignment:
-                    changes_made = compare_and_log_changes(existing_assignment, assignment, session)
-                    if changes_made:
-                        print(f'making a change for {assignment.data_id}')
-                        session.commit()
-                        sync_assignment_with_airtable(api, base_id, assignment_table_id, assignment)
-                else:
-                    print(f"Error: Existing assignment not found for data_id={assignment.data_id}")
-                    for attr, value in assignment.__dict__.items():
-                        if not attr.startswith('_'):
-                            print(f"{attr}: {value}")
                 
 
 def sync_assignment_with_airtable(api, base_id, table_id, assignment):
@@ -56,7 +47,7 @@ def sync_assignment_with_airtable(api, base_id, table_id, assignment):
 
     assignment_data = {
                 "Data ID": assignment.data_id,
-                "Course": assignment.course,
+                "Course": [assignment.course],
                 "Category": assignment.category,
                 "Quarter": assignment.quarter,
                 "Title": assignment.title,
@@ -74,11 +65,7 @@ def sync_assignment_with_airtable(api, base_id, table_id, assignment):
 def get_active_courses_from_airtable(api, base_id, table_id):
     table = api.table(base_id, table_id)
     formula = match({"Active": 1})
-    active_courses = []
-    for active_records in table.iterate(page_size=100, max_records=1000, formula=formula, fields=["Name", "HTML ID"]):
-        active_courses = [record['fields'] for record in active_records]
-    
-    return active_courses
+    return [record for record in table.iterate(page_size=100, max_records=1000, formula=formula, fields=["Name", "HTML ID"])][0]
 
 
 

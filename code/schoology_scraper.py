@@ -128,12 +128,9 @@ def get_grade_details(grade_column):
     no_grade = grade_column.find('span', class_='no-grade')
 
     if no_grade:
-        status = no_grade.find('span', class_='exception-text')
-
+        status = grade_column.find('span', class_='exception-text')
         if status:
-            grade_details['status'] = status
-            return grade_details
-        else:
+            grade_details['status'] = status.text
             return grade_details
     
     return grade_details

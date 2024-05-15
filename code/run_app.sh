@@ -8,11 +8,11 @@ log_message() {
 
 log_message "Starting script execution"
 
-source /Users/motes/Projects/schoology_assignment_scraper/motes-env/bin/activate
+source /Users/motes/Projects/schoology_assignment_scraper/venv/bin/activate
 
 log_message "Virtual environmentn activated"
 
-PATH=/Users/motes/Projects/schoology_assignment_scraper/motes-env/bin:$PATH
+PATH=/Users/motes/Projects/schoology_assignment_scraper/venv/bin:$PATH
 
 log_message "PATH updated"
 log_message "Starting app.py"

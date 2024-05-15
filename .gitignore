@@ -163,3 +163,4 @@ cython_debug/
 **/logs/
 motes-env/
 venv/
+code/run_app.sh

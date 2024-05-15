@@ -1,0 +1,18 @@
+Starting script execution at Wed May 15 14:33:00 CDT 2024
+Virtual environment activated
+PATH updated
+Script execution completed at Wed May 15 14:33:05 CDT 2024
+Starting script execution at Wed May 15 14:34:00 CDT 2024
+Virtual environment activated
+PATH updated
+Script execution completed at Wed May 15 14:34:04 CDT 2024
+Starting script execution at Wed May 15 14:35:00 CDT 2024
+Virtual environment activated
+PATH updated
+Script execution completed at Wed May 15 14:35:05 CDT 2024
+Starting script execution at Wed May 15 14:36:00 CDT 2024
+Virtual environment activated
+PATH updated
+2024-05-15 14:36:01,486 - INFO - Successfully logged into Schoology.
+2024-05-15 14:36:01,833 - INFO - Succesfully retrieved Courses from Airtable
+Script execution completed at Wed May 15 14:36:04 CDT 2024

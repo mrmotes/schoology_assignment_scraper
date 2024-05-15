@@ -1,4 +1,5 @@
 import os
+import logging
 from pyairtable import Api
 from pyairtable.formulas import match, to_airtable_value
 from schoology_scraper import login_to_schoology, get_assignments, compare_and_log_changes
@@ -6,6 +7,11 @@ from models import Assignment
 from database import Session
 from sqlalchemy.exc import IntegrityError
 
+logging.basicConfig(
+    filename='/Users/motes/Projects/schoology_assignment_scraper/code/logs/cron_logs.txt',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 def main():
     session = login_to_schoology()
@@ -24,6 +30,7 @@ def main():
         print('Schools out for summer!')
         return
     
+    logging.info('Succesfully retrieved Courses from Airtable')
     assignments = get_assignments(session, courses)
 
     with Session() as session:
@@ -34,10 +41,12 @@ def main():
                 if changes_made:
                     session.commit()
                     sync_assignment_with_airtable(api, base_id, assignment_table_id, existing_assignment)
+                    logging.info(f'Successfully updated {assignment.data_id} in Airtable')
             else:
                 session.add(assignment)
                 session.commit()
                 sync_assignment_with_airtable(api, base_id, assignment_table_id, assignment)
+                logging.info(f'Successfully created {assignment.data_id} in Airtable')
                 
 
 def sync_assignment_with_airtable(api, base_id, table_id, assignment):

@@ -30,6 +30,9 @@ def main():
         print('Schools out for summer!')
         return
     
+    updated = 0
+    created = 0
+
     logging.info('Succesfully retrieved Courses from Airtable')
     assignments = get_assignments(session, courses)
 
@@ -41,12 +44,16 @@ def main():
                 if changes_made:
                     session.commit()
                     sync_assignment_with_airtable(api, base_id, assignment_table_id, existing_assignment)
+                    updated += 1
                     logging.info(f'Successfully updated {assignment.data_id} in Airtable')
             else:
                 session.add(assignment)
                 session.commit()
                 sync_assignment_with_airtable(api, base_id, assignment_table_id, assignment)
-                logging.info(f'Successfully created {assignment.data_id} in Airtable')
+                created += 1
+    
+    logging.info(f"Assignments created: {created}")
+    logging.info(f"Assignments updated: {updated}")
                 
 
 def sync_assignment_with_airtable(api, base_id, table_id, assignment):

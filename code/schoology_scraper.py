@@ -75,7 +75,7 @@ def login_to_schoology():
         if "login_error" in response.text:
             raise Exception("Login failed. Check your credentials or the Schoology website.")
 
-        logging.info("Successfully logged into Schoology.")
+        logging.info("Successfully logged into Schoology")
         return session
     except requests.exceptions.HTTPError as errh:
         logging.error(f"HTTP Error: {errh}")

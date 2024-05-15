@@ -5,7 +5,6 @@ from pyairtable.formulas import match, to_airtable_value
 from schoology_scraper import login_to_schoology, get_assignments, compare_and_log_changes
 from models import Assignment
 from database import Session
-from sqlalchemy.exc import IntegrityError
 
 logging.basicConfig(
     filename='/Users/motes/Projects/schoology_assignment_scraper/code/logs/cron_logs.txt',
@@ -27,7 +26,7 @@ def main():
     courses = get_active_courses_from_airtable(api, base_id, course_table_id)
     
     if len(courses) == 0:
-        print('Schools out for summer!')
+        logging.info('Schools out for summer!')
         return
     
     updated = 0

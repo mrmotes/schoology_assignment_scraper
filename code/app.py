@@ -1,8 +1,7 @@
 import os
 import logging
-from pyairtable import Api
-from pyairtable.formulas import match, to_airtable_value
-from schoology_scraper import login_to_schoology, get_assignments, compare_and_log_changes
+from airtable import get_active_courses_from_airtable, get_airtable_api, sync_assignment_with_airtable
+from schoology_scraper import login_to_schoology, get_assignment_data_from_schoology, compare_and_log_changes
 from models import Assignment
 from database import Session
 
@@ -18,7 +17,7 @@ def main():
         print('Unable to establish a connection with Schoology.')
         return
     
-    api = Api(os.getenv('AIRTABLE_PERSONAL_ACCESS_TOKEN'))
+    api = get_airtable_api(os.getenv('AIRTABLE_PERSONAL_ACCESS_TOKEN'))
     base_id = os.getenv('AIRTABLE_BASE_ID')
     assignment_table_id = os.getenv('AIRTBALE_ASSIGNMENT_TABLE_ID')
     course_table_id = os.getenv('AIRTABLE_COURSE_TABLE_ID')
@@ -33,7 +32,7 @@ def main():
     created = 0
 
     logging.info('Succesfully retrieved Courses from Airtable')
-    assignments = get_assignments(session, courses)
+    assignments = get_assignment_data_from_schoology(session, courses)
 
     with Session() as session:
         for assignment in assignments:
@@ -53,37 +52,6 @@ def main():
     
     logging.info(f"Assignments created: {created}")
     logging.info(f"Assignments updated: {updated}")
-                
-
-def sync_assignment_with_airtable(api, base_id, table_id, assignment):
-    table = api.table(base_id, table_id)
-    formula = match({"Data ID": assignment.data_id})
-    existing_record = table.first(formula=formula)
-
-    assignment_data = {
-                "Data ID": assignment.data_id,
-                "Course": [assignment.course],
-                "Category": assignment.category,
-                "Quarter": assignment.quarter,
-                "Title": assignment.title,
-                "Date Due": to_airtable_value(assignment.due_date),
-                "Comment": assignment.comment,
-                "Awarded Grade": assignment.awarded_grade,
-                "Max Grade": assignment.max_grade,
-                "Status": assignment.status
-            }
-    if existing_record:
-        table.update(existing_record['id'], assignment_data)
-    else:
-        table.create(assignment_data)
-
-def get_active_courses_from_airtable(api, base_id, table_id):
-    table = api.table(base_id, table_id)
-    formula = match({"Active": 1})
-    return [record for record in table.iterate(page_size=100, max_records=1000, formula=formula, fields=["Name", "HTML ID"])][0]
-
-
-
 
 if __name__ == "__main__":
     main()

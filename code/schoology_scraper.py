@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from models import Assignment, ChangeLog
 
 
-def get_assignments(session, courses):
+def get_assignment_data_from_schoology(session, courses):
 
     grades_url = 'https://app.schoology.com/parent/grades_attendance/grades'
     response = session.get(grades_url)
@@ -207,6 +207,3 @@ def compare_and_log_changes(existing_assignment, new_assignment, session):
             setattr(existing_assignment, 'date_last_updated', current_time)
 
     return changes_made
-
-
-

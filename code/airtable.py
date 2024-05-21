@@ -2,30 +2,30 @@ from pyairtable import Api
 from pyairtable.formulas import match, to_airtable_value
 from pyairtable.orm import Model, fields as F
 
-class SchoolYear(Model):
-    name = F.TextField("Name")
-    start_date = F.DateField("Start Date")
-    end_date = F.DateField("End Date")
-    grade = F.IntegerField("Grade")
+# class SchoolYear(Model):
+#     name = F.TextField("Name")
+#     start_date = F.DateField("Start Date")
+#     end_date = F.DateField("End Date")
+#     grade = F.IntegerField("Grade")
 
-class Course(Model):
-    name = F.TextField("Name")
-    school_year = F.LinkField("School Year", SchoolYear)
-    code = F.TextField("Code")
-    data_id = F.TextField("Data ID")
-    html_prefix = F.TextField("HTML Prefix")
+# class Course(Model):
+#     name = F.TextField("Name")
+#     school_year = F.LinkField("School Year", SchoolYear)
+#     code = F.TextField("Code")
+#     data_id = F.TextField("Data ID")
+#     html_prefix = F.TextField("HTML Prefix")
 
-class Assignment(Model):
-    data_id = F.TextField("Data ID")
-    course = F.LinkField("Course", Course)
-    category = F.SelectField("Category")
-    quarter = F.TextField("Quarter")
-    title = F.TextField("Title")
-    date_due = F.DateField("Date Due")
-    comment = F.TextField("Comment")
-    awarded_grade = F.FloatField("Awarded Grade")
-    max_grade = F.FloatField("Max Grade")
-    status = F.SelectField("Status")
+# class Assignment(Model):
+#     data_id = F.TextField("Data ID")
+#     course = F.LinkField("Course", Course)
+#     category = F.SelectField("Category")
+#     quarter = F.TextField("Quarter")
+#     title = F.TextField("Title")
+#     date_due = F.DateField("Date Due")
+#     comment = F.TextField("Comment")
+#     awarded_grade = F.FloatField("Awarded Grade")
+#     max_grade = F.FloatField("Max Grade")
+#     status = F.SelectField("Status")
 
 def get_airtable_api(personal_access_token):
     return Api(personal_access_token)

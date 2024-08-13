@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, Column, Date, DateTime, Integer, String 
 from sqlalchemy.orm import declarative_base
 
-engine = create_engine('sqlite:///schoology.db')
+engine = create_engine('sqlite:////Users/motes/Projects/schoology_assignment_scraper/schoology.db')
 Base = declarative_base()
 
 class Assignment(Base):

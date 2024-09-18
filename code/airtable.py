@@ -1,31 +1,31 @@
 from pyairtable import Api
 from pyairtable.formulas import match, to_airtable_value
-from pyairtable.orm import Model, fields as F
+from pyairtable.orm import Model, fields
 
-# class SchoolYear(Model):
-#     name = F.TextField("Name")
-#     start_date = F.DateField("Start Date")
-#     end_date = F.DateField("End Date")
-#     grade = F.IntegerField("Grade")
+class SchoolYear(Model):
+    name = fields.TextField("Name")
+    start_date = fields.DateField("Start Date")
+    end_date = fields.DateField("End Date")
+    grade = fields.IntegerField("Grade")
 
-# class Course(Model):
-#     name = F.TextField("Name")
-#     school_year = F.LinkField("School Year", SchoolYear)
-#     code = F.TextField("Code")
-#     data_id = F.TextField("Data ID")
-#     html_prefix = F.TextField("HTML Prefix")
+class Course(Model):
+    name = fields.TextField("Name")
+    school_year = fields.LinkField("School Year", SchoolYear)
+    code = fields.TextField("Code")
+    data_id = fields.TextField("Data ID")
+    html_prefix = fields.TextField("HTML Prefix")
 
-# class Assignment(Model):
-#     data_id = F.TextField("Data ID")
-#     course = F.LinkField("Course", Course)
-#     category = F.SelectField("Category")
-#     quarter = F.TextField("Quarter")
-#     title = F.TextField("Title")
-#     date_due = F.DateField("Date Due")
-#     comment = F.TextField("Comment")
-#     awarded_grade = F.FloatField("Awarded Grade")
-#     max_grade = F.FloatField("Max Grade")
-#     status = F.SelectField("Status")
+class Assignment(Model):
+    data_id = fields.TextField("Data ID")
+    course = fields.LinkField("Course", Course)
+    category = fields.SelectField("Category")
+    quarter = fields.TextField("Quarter")
+    title = fields.TextField("Title")
+    date_due = fields.DateField("Date Due")
+    comment = fields.TextField("Comment")
+    awarded_grade = fields.FloatField("Awarded Grade")
+    max_grade = fields.FloatField("Max Grade")
+    status = fields.SelectField("Status")
 
 def get_airtable_api(personal_access_token):
     return Api(personal_access_token)

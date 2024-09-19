@@ -1,15 +1,13 @@
 import logging
 import os
-import pytz
 import re
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, timezone
+from datetime import datetime
 from dotenv import load_dotenv
-from models import Assignment, ChangeLog
 
 
-def get_assignment_data_from_schoology(session, courses):
+def get_schoology_assignments(session, courses):
 
     grades_url = 'https://app.schoology.com/parent/grades_attendance/grades'
     response = session.get(grades_url)
@@ -34,19 +32,18 @@ def get_assignment_data_from_schoology(session, courses):
             tr_html_classes = tr.get('class')
             if 'item-row' in tr_html_classes:
                 assignment_details = get_assignment_from_table_row(tr)
-                assignment = Assignment(
-                    data_id = tr.get('data-id') ,
-                    course = course['id'], 
-                    category = current_category, 
-                    quarter = current_quarter, 
-                    title = assignment_details.get('title'), 
-                    due_date = assignment_details.get('due_date'), 
-                    comment = assignment_details.get('comment'), 
-                    awarded_grade = assignment_details.get('awarded_grade'), 
-                    max_grade = assignment_details.get('max_grade'), 
-                    status= assignment_details.get('status'), 
-                    date_extracted = datetime.now(pytz.timezone('US/Central'))
-                )
+                assignment = {
+                    'Data ID': tr.get('data-id') ,
+                    'Course': course['id'], 
+                    'Category': current_category, 
+                    'Quarter': current_quarter, 
+                    'Title': assignment_details.get('title'), 
+                    'Date Due': assignment_details.get('due_date'), 
+                    'Comment': assignment_details.get('comment'), 
+                    'Awarded Grade': assignment_details.get('awarded_grade'), 
+                    'Max Grade': assignment_details.get('max_grade'), 
+                    'Status': assignment_details.get('status')
+                }
                 assignments.append(assignment)
             elif 'period-row' in tr_html_classes:
                 current_quarter = get_title_from_table_row(tr)
@@ -72,19 +69,19 @@ def login_to_schoology():
         response = session.post(login_url, data=credentials)
         response.raise_for_status()
 
-        if "login_error" in response.text:
-            raise Exception("Login failed. Check your credentials or the Schoology website.")
+        if 'login_error' in response.text:
+            raise Exception('Login failed. Check your credentials or the Schoology website.')
 
-        logging.info("Successfully logged into Schoology")
+        logging.info('✅ Successfully logged into Schoology')
         return session
     except requests.exceptions.HTTPError as errh:
-        logging.error(f"HTTP Error: {errh}")
+        logging.error(f'❌ HTTPError: {errh}')
     except requests.exceptions.ConnectionError as errc:
-        logging.error(f"Error Connecting: {errc}")
+        logging.error(f'❌ ConnectionError: {errc}')
     except requests.exceptions.Timeout as errt:
-        logging.error(f"Timeout Error: {errt}")
+        logging.error(f'❌ Timeout: {errt}')
     except requests.exceptions.RequestException as err:
-        logging.error(f"Something went wrong: {err}")
+        logging.error(f'❌ RequestException: {err}')
 
     return None
 
@@ -167,8 +164,7 @@ def get_assignment_from_table_row(tr):
         'comment': comment,
         'awarded_grade': grade_details['awarded-grade'],
         'max_grade': grade_details['max-grade'],
-        'status': grade_details['status'],
-        'date_extracted': datetime.now(timezone.utc)
+        'status': grade_details['status']
     }
 
 
@@ -179,31 +175,3 @@ def get_title_from_table_row(tr):
     
     title_text = title_span.find(text=True, recursive=False)
     return title_text.strip() if title_text else None
-
-
-def compare_and_log_changes(existing_assignment, new_assignment, session):
-    changes_made = False
-    for attribute in ['course', 'title', 'due_date', 'comment', 'awarded_grade', 'max_grade', 'status']:
-        current_time = datetime.now(pytz.timezone('US/Central'))
-        existing_value = getattr(existing_assignment, attribute, None)
-        new_value = getattr(new_assignment, attribute, None)
-
-        if isinstance(existing_value, datetime) and isinstance(new_value, datetime):
-            existing_value = existing_value.replace(microsecond=0)
-            new_value = new_value.replace(microsecond=0)
-
-        if existing_value != new_value:
-            changes_made = True
-            change = ChangeLog(
-                data_id=new_assignment.data_id,
-                attribute=attribute,
-                previous_value=str(existing_value), 
-                new_value=str(new_value),
-                date_changed=current_time
-            )
-            session.add(change)
-
-            setattr(existing_assignment, attribute, new_value)
-            setattr(existing_assignment, 'date_last_updated', current_time)
-
-    return changes_made

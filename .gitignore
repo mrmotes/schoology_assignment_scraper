@@ -165,4 +165,3 @@ motes-env/
 venv/
 code/run_app.sh
 code/.DS_Store
-data/schoology.db

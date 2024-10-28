@@ -19,8 +19,10 @@ def get_schoology_assignments(session, courses):
     for course in courses:
         course_html_id = course['fields']['HTML ID']
         course_gradebook_div = soup.find('div', id=course_html_id)
+
         if not course_gradebook_div:
             print(f'NotFound: {course_html_id}')
+            continue
 
         gradebook_course_grades_div = course_gradebook_div.find('div', class_='gradebook-course-grades')
         table_rows = gradebook_course_grades_div.find_all('tr')

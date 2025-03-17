@@ -33,8 +33,6 @@ def sync_assignment_with_airtable(assignment):
         if has_changes(existing_record, assignment):
             assignment_table.update(existing_record['id'], assignment)
             logging.info(f'🔄 Updated Record: {existing_record['fields']['Data ID']}')
-        else:
-            logging.info(f'😴 No Changes: {existing_record['fields']['Data ID']}')
     else:
         assignment_table.create(assignment)
         logging.info(f'🌱 Created Record: {assignment['Data ID']}')

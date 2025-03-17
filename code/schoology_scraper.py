@@ -21,7 +21,7 @@ def get_schoology_assignments(session, courses):
         course_gradebook_div = soup.find('div', id=course_html_id)
 
         if not course_gradebook_div:
-            print(f'NotFound: {course_html_id}')
+            logging.error(f'🕵️ Course not found for {course_html_id}')
             continue
 
         gradebook_course_grades_div = course_gradebook_div.find('div', class_='gradebook-course-grades')

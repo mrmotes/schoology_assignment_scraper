@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from pyairtable import Api
-from pyairtable.formulas import match, to_airtable_value
+from pyairtable.formulas import match
 
 load_dotenv()
 
@@ -27,7 +27,6 @@ def sync_assignment_with_airtable(assignment):
     existing_record = assignment_table.first(formula=formula)
 
     assignment['Course'] = [assignment['Course']]
-    assignment['Date Due'] = to_airtable_value(assignment['Date Due'])
 
     if existing_record:
         if has_changes(existing_record, assignment):

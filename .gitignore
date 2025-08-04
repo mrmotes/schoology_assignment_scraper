@@ -164,4 +164,5 @@ cython_debug/
 motes-env/
 venv/
 code/run_app.sh
+code/run_app.bat
 code/.DS_Store

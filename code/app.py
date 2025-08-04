@@ -1,20 +1,28 @@
 import logging
+import os
 import time
 from airtable import get_active_airtable_courses, sync_assignment_with_airtable
 from schoology_scraper import login_to_schoology, get_schoology_assignments
 
 start_time = time.time()
 
+
+# --- Cross-platform Logging Setup ---
+script_dir = os.path.dirname(os.path.abspath(__file__))
+log_file_path = os.path.join(script_dir, 'logs', 'cron_logs.txt')
+os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+
 logging.basicConfig(
-    filename='/Users/motes/Projects/schoology_assignment_scraper/code/logs/cron_logs.txt',
+    filename=log_file_path,
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+
 def main():
     session = login_to_schoology()
     if not session:
-        print('❌ Login Error: Unable to establish a connection with Schoology')
+        logging.error('❌ Login Error: Unable to establish a connection with Schoology')
         return
 
     airtable_courses = get_active_airtable_courses()

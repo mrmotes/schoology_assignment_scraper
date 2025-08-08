@@ -19,7 +19,6 @@ def get_schoology_assignments(session, courses):
     for course in courses:
         course_html_id = course['fields']['HTML ID']
         course_gradebook_div = soup.find('div', id=course_html_id)
-
         if not course_gradebook_div:
             logging.error(f'🕵️ Course not found for {course_html_id}')
             continue
@@ -72,6 +71,8 @@ def login_to_schoology():
         response.raise_for_status()
 
         if 'login_error' in response.text:
+            raise Exception('Login failed. Check your credentials or the Schoology website.')
+        if 's_user_login_form' in response.text:
             raise Exception('Login failed. Check your credentials or the Schoology website.')
 
         logging.info('✅ Successfully logged into Schoology')
